@@ -251,6 +251,15 @@ sudo mkdir -p "$WEB_ROOT"
 printf '%s' ${htmlBase64Q} | base64 -d | sudo tee "$WEB_ROOT/index.html" > /dev/null
 
 if [ -f "$LE_LIVE/fullchain.pem" ] && [ -f "$LE_LIVE/privkey.pem" ]; then
+  SSL_OPTIONS_LINE=""
+  SSL_DHPARAM_LINE=""
+  if [ -f "/etc/letsencrypt/options-ssl-nginx.conf" ]; then
+    SSL_OPTIONS_LINE="    include /etc/letsencrypt/options-ssl-nginx.conf;"
+  fi
+  if [ -f "/etc/letsencrypt/ssl-dhparams.pem" ]; then
+    SSL_DHPARAM_LINE="    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;"
+  fi
+
   sudo tee "$CONFIG_PATH" > /dev/null <<EOF
 server {
     listen 80;
@@ -269,8 +278,8 @@ server {
 
     ssl_certificate $LE_LIVE/fullchain.pem;
     ssl_certificate_key $LE_LIVE/privkey.pem;
-    include /etc/letsencrypt/options-ssl-nginx.conf;
-    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+${"$"}SSL_OPTIONS_LINE
+${"$"}SSL_DHPARAM_LINE
 
     location / {
         try_files \\$uri \\$uri/ =404;
@@ -329,11 +338,34 @@ CONFIG_PATH="/etc/nginx/sites-available/$DOMAIN"
 ENABLED_PATH="/etc/nginx/sites-enabled/$DOMAIN"
 LE_LIVE="/etc/letsencrypt/live/$DOMAIN"
 
+CERTBOT_CODE=0
+CERTBOT_OUTPUT=""
+
 if ${includeWww ? 'true' : 'false'}; then
   WWW_DOMAIN=${wwwQ}
-  sudo certbot certonly --webroot -w "$WEB_ROOT" --cert-name "$DOMAIN" -d "$DOMAIN" -d "$WWW_DOMAIN" --non-interactive --agree-tos ${certbotEmailArg}
+  CERTBOT_OUTPUT=$(sudo certbot certonly --webroot -w "$WEB_ROOT" --cert-name "$DOMAIN" -d "$DOMAIN" -d "$WWW_DOMAIN" --non-interactive --agree-tos ${certbotEmailArg} 2>&1) || CERTBOT_CODE=$?
 else
-  sudo certbot certonly --webroot -w "$WEB_ROOT" --cert-name "$DOMAIN" -d "$DOMAIN" --non-interactive --agree-tos ${certbotEmailArg}
+  CERTBOT_OUTPUT=$(sudo certbot certonly --webroot -w "$WEB_ROOT" --cert-name "$DOMAIN" -d "$DOMAIN" --non-interactive --agree-tos ${certbotEmailArg} 2>&1) || CERTBOT_CODE=$?
+fi
+
+if [ "$CERTBOT_CODE" -ne 0 ]; then
+  if echo "$CERTBOT_OUTPUT" | grep -qi "not yet due for renewal"; then
+    echo "$CERTBOT_OUTPUT"
+  else
+    echo "$CERTBOT_OUTPUT" >&2
+    exit "$CERTBOT_CODE"
+  fi
+else
+  echo "$CERTBOT_OUTPUT"
+fi
+
+SSL_OPTIONS_LINE=""
+SSL_DHPARAM_LINE=""
+if [ -f "/etc/letsencrypt/options-ssl-nginx.conf" ]; then
+  SSL_OPTIONS_LINE="    include /etc/letsencrypt/options-ssl-nginx.conf;"
+fi
+if [ -f "/etc/letsencrypt/ssl-dhparams.pem" ]; then
+  SSL_DHPARAM_LINE="    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;"
 fi
 
 sudo tee "$CONFIG_PATH" > /dev/null <<EOF
@@ -354,8 +386,8 @@ server {
 
     ssl_certificate $LE_LIVE/fullchain.pem;
     ssl_certificate_key $LE_LIVE/privkey.pem;
-    include /etc/letsencrypt/options-ssl-nginx.conf;
-    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+${"$"}SSL_OPTIONS_LINE
+${"$"}SSL_DHPARAM_LINE
 
     location / {
         try_files \\$uri \\$uri/ =404;
