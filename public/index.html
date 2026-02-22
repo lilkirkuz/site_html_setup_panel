@@ -97,6 +97,35 @@
         padding: 24px;
       }
 
+      .top-tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+
+      .tab-page {
+        display: none;
+      }
+
+      .tab-page.active {
+        display: block;
+      }
+
+      .guide {
+        line-height: 1.45;
+      }
+
+      .guide h2 {
+        margin: 0 0 10px;
+      }
+
+      .guide .note {
+        background: #fff5d8;
+        border: 1px solid #f1d687;
+        border-radius: 10px;
+        padding: 10px 12px;
+      }
+
       h1 {
         margin: 0 0 8px;
         font-size: 1.8rem;
@@ -237,10 +266,16 @@
       </aside>
 
       <section class="panel content">
-        <h1>SSH Nginx Deployer</h1>
-        <p class="intro">Управление установкой Nginx, SSL Certbot и деплоем HTML на Ubuntu сервер по SSH.</p>
+        <div class="top-tabs">
+          <button id="tabPanel" class="primary">Панель</button>
+          <button id="tabGuide" class="secondary">Инструкция</button>
+        </div>
 
-        <section class="grid">
+        <div id="pagePanel" class="tab-page active">
+          <h1>SSH Nginx Deployer</h1>
+          <p class="intro">Управление установкой Nginx, SSL Certbot и деплоем HTML на Ubuntu сервер по SSH.</p>
+
+          <section class="grid">
           <div class="field full">
             <label for="profileName">Название профиля</label>
             <input id="profileName" placeholder="Prod EU" />
@@ -297,25 +332,46 @@
               Добавить www-домен в сертификат
             </label>
           </div>
-        </section>
+          </section>
 
-        <div class="actions">
-          <button id="fullDeploy" class="primary">Полный деплой</button>
-          <button id="install" class="secondary">Установить Nginx + Certbot</button>
-          <button id="deploy" class="secondary">Задеплоить HTML</button>
-          <button id="certbot" class="secondary">Получить SSL</button>
-          <button id="enable" class="secondary">Включить сайт</button>
-          <button id="disable" class="danger">Выключить сайт</button>
-          <button id="siteStatus" class="secondary">Проверить статус сайта</button>
-          <button id="sshBootstrap" class="primary">Автонастроить SSH ключ</button>
+          <div class="actions">
+            <button id="sshBootstrap" class="primary">1. Автонастроить SSH ключ</button>
+            <button id="install" class="secondary">2. Установить Nginx + Certbot</button>
+            <button id="deploy" class="secondary">3. Задеплоить HTML</button>
+            <button id="certbot" class="secondary">4. Получить SSL</button>
+            <button id="enable" class="secondary">5. Включить сайт</button>
+            <button id="siteStatus" class="secondary">6. Проверить статус сайта</button>
+            <button id="disable" class="danger">Выключить сайт</button>
+            <button id="fullDeploy" class="primary">Быстрый: Полный деплой</button>
+          </div>
+
+          <div class="status" id="status">Статус: готово</div>
+          <div class="log-actions">
+            <button id="copyLogs" class="secondary">Копировать лог</button>
+            <button id="clearLogs" class="secondary">Очистить лог</button>
+          </div>
+          <pre id="logs">Логи появятся здесь...</pre>
         </div>
 
-        <div class="status" id="status">Статус: готово</div>
-        <div class="log-actions">
-          <button id="copyLogs" class="secondary">Копировать лог</button>
-          <button id="clearLogs" class="secondary">Очистить лог</button>
+        <div id="pageGuide" class="tab-page guide">
+          <h2>Инструкция для новичка</h2>
+          <p>Ниже порядок действий с нуля, чтобы запустить сайт на домене.</p>
+          <ol>
+            <li>Создай профиль сервера слева и нажми <b>Сохранить профиль</b>.</li>
+            <li>Заполни <b>SSH Host</b>, <b>SSH User</b>, <b>Domain</b>, вставь HTML в поле <b>HTML Content</b>.</li>
+            <li>Если это первый запуск, укажи временно пароль SSH и нажми <b>1. Автонастроить SSH ключ</b>.</li>
+            <li>Нажми <b>2. Установить Nginx + Certbot</b>.</li>
+            <li>Нажми <b>3. Задеплоить HTML</b>.</li>
+            <li>Нажми <b>4. Получить SSL</b>.</li>
+            <li>Нажми <b>5. Включить сайт</b> и проверь <b>6. Проверить статус сайта</b>.</li>
+          </ol>
+          <p class="note">
+            Важно для Cloudflare и похожих DNS-прокси: на время шага <b>Получить SSL</b> выключи проксирование (режим
+            DNS only / серое облако), иначе Certbot может не пройти проверку домена.
+          </p>
+          <p>После успешного SSL можешь вернуть проксирование обратно.</p>
+          <p>Если что-то пошло не так: открой лог, нажми <b>Копировать лог</b> и пришли его.</p>
         </div>
-        <pre id="logs">Логи появятся здесь...</pre>
       </section>
     </main>
 
@@ -325,6 +381,10 @@
         'newServer',
         'saveServer',
         'deleteServer',
+        'tabPanel',
+        'tabGuide',
+        'pagePanel',
+        'pageGuide',
         'profileName',
         'host',
         'port',
@@ -390,6 +450,14 @@
         actionButtons.forEach((btn) => {
           btn.disabled = isBusy;
         });
+      }
+
+      function switchPage(page) {
+        const isPanel = page === 'panel';
+        el.pagePanel.classList.toggle('active', isPanel);
+        el.pageGuide.classList.toggle('active', !isPanel);
+        el.tabPanel.className = isPanel ? 'primary' : 'secondary';
+        el.tabGuide.className = isPanel ? 'secondary' : 'primary';
       }
 
       function setStatus(text, isError = false) {
@@ -609,6 +677,8 @@
         fillForm(initialForm);
         setStatus('новый профиль');
       });
+      el.tabPanel.addEventListener('click', () => switchPage('panel'));
+      el.tabGuide.addEventListener('click', () => switchPage('guide'));
       el.copyLogs.addEventListener('click', copyLogsToClipboard);
       el.clearLogs.addEventListener('click', () => {
         el.logs.textContent = 'Логи появятся здесь...';

@@ -245,11 +245,40 @@ DOMAIN=${domainQ}
 WEB_ROOT="/var/www/$DOMAIN/html"
 CONFIG_PATH="/etc/nginx/sites-available/$DOMAIN"
 ENABLED_PATH="/etc/nginx/sites-enabled/$DOMAIN"
+LE_LIVE="/etc/letsencrypt/live/$DOMAIN"
 
 sudo mkdir -p "$WEB_ROOT"
 printf '%s' ${htmlBase64Q} | base64 -d | sudo tee "$WEB_ROOT/index.html" > /dev/null
 
-sudo tee "$CONFIG_PATH" > /dev/null <<EOF
+if [ -f "$LE_LIVE/fullchain.pem" ] && [ -f "$LE_LIVE/privkey.pem" ]; then
+  sudo tee "$CONFIG_PATH" > /dev/null <<EOF
+server {
+    listen 80;
+    listen [::]:80;
+    server_name $DOMAIN;
+    return 301 https://\\$host\\$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name $DOMAIN;
+
+    root $WEB_ROOT;
+    index index.html;
+
+    ssl_certificate $LE_LIVE/fullchain.pem;
+    ssl_certificate_key $LE_LIVE/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    location / {
+        try_files \\$uri \\$uri/ =404;
+    }
+}
+EOF
+else
+  sudo tee "$CONFIG_PATH" > /dev/null <<EOF
 server {
     listen 80;
     listen [::]:80;
@@ -259,14 +288,24 @@ server {
     index index.html;
 
     location / {
-        try_files \$uri \$uri/ =404;
+        try_files \\$uri \\$uri/ =404;
     }
 }
 EOF
+fi
 
 if [ ! -e "$ENABLED_PATH" ]; then
   sudo ln -s "$CONFIG_PATH" "$ENABLED_PATH"
 fi
+
+# If certbot previously modified "default" (or another file) with this domain,
+# keep only the dedicated domain config to avoid conflicting server_name blocks.
+for FILE in /etc/nginx/sites-enabled/*; do
+  [ "$FILE" = "$ENABLED_PATH" ] && continue
+  if sudo grep -qE "server_name[[:space:]]+.*\\b$DOMAIN\\b" "$FILE"; then
+    sudo rm -f "$FILE"
+  fi
+done
 
 sudo nginx -t
 sudo systemctl reload nginx
@@ -285,13 +324,56 @@ function buildCertbotScript(domain, includeWww, certbotEmail) {
   return `
 set -euo pipefail
 DOMAIN=${domainQ}
+WEB_ROOT="/var/www/$DOMAIN/html"
+CONFIG_PATH="/etc/nginx/sites-available/$DOMAIN"
+ENABLED_PATH="/etc/nginx/sites-enabled/$DOMAIN"
+LE_LIVE="/etc/letsencrypt/live/$DOMAIN"
 
 if ${includeWww ? 'true' : 'false'}; then
   WWW_DOMAIN=${wwwQ}
-  sudo certbot --nginx -d "$DOMAIN" -d "$WWW_DOMAIN" --non-interactive --agree-tos ${certbotEmailArg} --redirect
+  sudo certbot certonly --webroot -w "$WEB_ROOT" --cert-name "$DOMAIN" -d "$DOMAIN" -d "$WWW_DOMAIN" --non-interactive --agree-tos ${certbotEmailArg}
 else
-  sudo certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos ${certbotEmailArg} --redirect
+  sudo certbot certonly --webroot -w "$WEB_ROOT" --cert-name "$DOMAIN" -d "$DOMAIN" --non-interactive --agree-tos ${certbotEmailArg}
 fi
+
+sudo tee "$CONFIG_PATH" > /dev/null <<EOF
+server {
+    listen 80;
+    listen [::]:80;
+    server_name $DOMAIN${includeWww ? ' $WWW_DOMAIN' : ''};
+    return 301 https://\\$host\\$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name $DOMAIN${includeWww ? ' $WWW_DOMAIN' : ''};
+
+    root /var/www/$DOMAIN/html;
+    index index.html;
+
+    ssl_certificate $LE_LIVE/fullchain.pem;
+    ssl_certificate_key $LE_LIVE/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    location / {
+        try_files \\$uri \\$uri/ =404;
+    }
+}
+EOF
+
+if [ ! -e "$ENABLED_PATH" ]; then
+  sudo ln -s "$CONFIG_PATH" "$ENABLED_PATH"
+fi
+
+# Remove other enabled files that still claim this domain (e.g. default).
+for FILE in /etc/nginx/sites-enabled/*; do
+  [ "$FILE" = "$ENABLED_PATH" ] && continue
+  if sudo grep -qE "server_name[[:space:]]+.*\\b$DOMAIN\\b" "$FILE"; then
+    sudo rm -f "$FILE"
+  fi
+done
 
 sudo nginx -t
 sudo systemctl reload nginx
@@ -436,7 +518,6 @@ app.post('/api/deploy', async (req, res) => {
     const domain = getDomainFromPayload(req.body);
     const html = getHtmlFromPayload(req.body);
     const htmlBase64 = Buffer.from(html, 'utf8').toString('base64');
-
     const result = await executeOperation(req.body, () => buildDeployScript(domain, htmlBase64));
     res.json({ ok: true, stdout: result.stdout, stderr: result.stderr });
   } catch (error) {
@@ -499,7 +580,10 @@ app.post('/api/full-deploy', async (req, res) => {
       const installRes = await runRemoteScript(conn, buildInstallScript());
       stepLogs.push({ step: 'install', stdout: installRes.stdout, stderr: installRes.stderr });
 
-      const deployRes = await runRemoteScript(conn, buildDeployScript(domain, htmlBase64));
+      const deployRes = await runRemoteScript(
+        conn,
+        buildDeployScript(domain, htmlBase64),
+      );
       stepLogs.push({ step: 'deploy', stdout: deployRes.stdout, stderr: deployRes.stderr });
 
       const certRes = await runRemoteScript(
