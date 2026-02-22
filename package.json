@@ -1,0 +1,16 @@
+{
+  "name": "ubuntu-site-deployer",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Web app to manage Nginx deployment over SSH",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "helmet": "^8.0.0",
+    "ssh2": "^1.16.0"
+  }
+}

@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SSH Nginx Deployer</title>
+    <style>
+      :root {
+        --bg: #f4f7f4;
+        --surface: #ffffff;
+        --text: #102018;
+        --muted: #4a5f54;
+        --accent: #1d6b3f;
+        --danger: #9c2f2f;
+        --border: #d5e0d8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+        background: radial-gradient(circle at top left, #ddeee1, var(--bg) 45%);
+        color: var(--text);
+      }
+
+      .wrap {
+        max-width: 1100px;
+        margin: 32px auto;
+        padding: 24px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        box-shadow: 0 18px 40px rgba(24, 58, 40, 0.08);
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: 1.8rem;
+      }
+
+      p {
+        margin-top: 0;
+        color: var(--muted);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(280px, 1fr));
+        gap: 14px;
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      label {
+        font-size: 0.9rem;
+        font-weight: 700;
+      }
+
+      input,
+      textarea {
+        padding: 10px 12px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        font: inherit;
+      }
+
+      textarea {
+        min-height: 150px;
+        resize: vertical;
+      }
+
+      .full {
+        grid-column: 1 / -1;
+      }
+
+      .actions {
+        margin-top: 18px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      button {
+        border: none;
+        padding: 10px 14px;
+        border-radius: 10px;
+        font: inherit;
+        cursor: pointer;
+        transition: transform 120ms ease, opacity 120ms ease;
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+      }
+
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .primary {
+        background: var(--accent);
+        color: white;
+      }
+
+      .secondary {
+        background: #e7efe9;
+        color: var(--text);
+      }
+
+      .danger {
+        background: var(--danger);
+        color: white;
+      }
+
+      .status {
+        margin-top: 12px;
+        font-weight: 700;
+      }
+
+      pre {
+        margin-top: 14px;
+        background: #0f1712;
+        color: #d9e8dc;
+        border-radius: 10px;
+        padding: 14px;
+        overflow: auto;
+        min-height: 180px;
+      }
+
+      @media (max-width: 800px) {
+        .wrap {
+          margin: 0;
+          min-height: 100vh;
+          border-radius: 0;
+          border: 0;
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <h1>SSH Nginx Deployer</h1>
+      <p>Управление установкой Nginx, SSL Certbot и деплоем HTML на Ubuntu сервер по SSH.</p>
+
+      <section class="grid">
+        <div class="field">
+          <label for="host">SSH Host</label>
+          <input id="host" placeholder="203.0.113.10" />
+        </div>
+
+        <div class="field">
+          <label for="port">SSH Port</label>
+          <input id="port" value="22" />
+        </div>
+
+        <div class="field">
+          <label for="username">SSH User</label>
+          <input id="username" placeholder="ubuntu" />
+        </div>
+
+        <div class="field">
+          <label for="password">SSH Password (optional, for bootstrap)</label>
+          <input id="password" type="password" placeholder="server password" />
+        </div>
+
+        <div class="field">
+          <label for="domain">Domain</label>
+          <input id="domain" placeholder="example.com" />
+        </div>
+
+        <div class="field full">
+          <label for="keyName">Managed Key Name</label>
+          <input id="keyName" value="deployer" />
+        </div>
+
+        <div class="field full">
+          <label for="certbotEmail">Certbot Email (optional)</label>
+          <input id="certbotEmail" placeholder="admin@example.com" />
+        </div>
+
+        <div class="field full">
+          <label for="privateKey">SSH Private Key</label>
+          <textarea id="privateKey" placeholder="-----BEGIN OPENSSH PRIVATE KEY-----"></textarea>
+        </div>
+
+        <div class="field full">
+          <label for="html">HTML Content (index.html)</label>
+          <textarea id="html" placeholder="<!doctype html><html>...</html>"></textarea>
+        </div>
+
+        <div class="field full">
+          <label>
+            <input type="checkbox" id="includeWww" />
+            Добавить www-домен в сертификат
+          </label>
+        </div>
+      </section>
+
+      <div class="actions">
+        <button id="fullDeploy" class="primary">Полный деплой</button>
+        <button id="install" class="secondary">Установить Nginx + Certbot</button>
+        <button id="deploy" class="secondary">Задеплоить HTML</button>
+        <button id="certbot" class="secondary">Получить SSL</button>
+        <button id="enable" class="secondary">Включить сайт</button>
+        <button id="disable" class="danger">Выключить сайт</button>
+        <button id="siteStatus" class="secondary">Проверить статус сайта</button>
+        <button id="sshBootstrap" class="primary">Автонастроить SSH ключ</button>
+      </div>
+
+      <div class="status" id="status">Статус: готово</div>
+      <pre id="logs">Логи появятся здесь...</pre>
+    </main>
+
+    <script>
+      const ids = [
+        'host',
+        'port',
+        'username',
+        'password',
+        'domain',
+        'keyName',
+        'certbotEmail',
+        'privateKey',
+        'html',
+        'includeWww',
+        'status',
+        'logs',
+        'fullDeploy',
+        'install',
+        'deploy',
+        'certbot',
+        'enable',
+        'disable',
+        'siteStatus',
+        'sshBootstrap'
+      ];
+
+      const el = Object.fromEntries(ids.map((id) => [id, document.getElementById(id)]));
+
+      const buttons = [el.fullDeploy, el.install, el.deploy, el.certbot, el.enable, el.disable, el.siteStatus, el.sshBootstrap];
+
+      function payload() {
+        return {
+          host: el.host.value.trim(),
+          port: el.port.value.trim(),
+          username: el.username.value.trim(),
+          password: el.password.value,
+          privateKey: el.privateKey.value,
+          domain: el.domain.value.trim(),
+          keyName: el.keyName.value.trim(),
+          certbotEmail: el.certbotEmail.value.trim(),
+          html: el.html.value,
+          includeWww: el.includeWww.checked
+        };
+      }
+
+      function setBusy(isBusy) {
+        buttons.forEach((btn) => {
+          btn.disabled = isBusy;
+        });
+      }
+
+      function setStatus(text, isError = false) {
+        el.status.textContent = `Статус: ${text}`;
+        el.status.style.color = isError ? '#9c2f2f' : '#1d6b3f';
+      }
+
+      function appendLogs(text) {
+        const now = new Date().toLocaleTimeString();
+        el.logs.textContent = `[${now}] ${text}\n\n` + el.logs.textContent;
+      }
+
+      async function callApi(path, body) {
+        setBusy(true);
+        setStatus('выполняется...');
+
+        try {
+          const response = await fetch(path, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+          });
+
+          const data = await response.json();
+          if (!response.ok || !data.ok) {
+            throw new Error(data.error || 'Unknown error');
+          }
+
+          setStatus('успешно');
+          if (data.steps) {
+            data.steps.forEach((step) => {
+              appendLogs(`${step.step.toUpperCase()}\n${step.stdout || ''}\n${step.stderr || ''}`.trim());
+            });
+          } else {
+            appendLogs(`${data.stdout || ''}\n${data.stderr || ''}`.trim());
+          }
+        } catch (error) {
+          setStatus('ошибка', true);
+          appendLogs(`ERROR: ${error.message}`);
+        } finally {
+          setBusy(false);
+        }
+      }
+
+      el.fullDeploy.addEventListener('click', () => callApi('/api/full-deploy', payload()));
+      el.install.addEventListener('click', () => callApi('/api/install', payload()));
+      el.deploy.addEventListener('click', () => callApi('/api/deploy', payload()));
+      el.certbot.addEventListener('click', () => callApi('/api/certbot', payload()));
+      el.enable.addEventListener('click', () => callApi('/api/site/enable', payload()));
+      el.disable.addEventListener('click', () => callApi('/api/site/disable', payload()));
+      el.siteStatus.addEventListener('click', async () => {
+        setBusy(true);
+        setStatus('выполняется...');
+        try {
+          const response = await fetch('/api/site/status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload())
+          });
+          const data = await response.json();
+          if (!response.ok || !data.ok) {
+            throw new Error(data.error || 'Unknown error');
+          }
+          setStatus(`сайт ${data.status}`);
+          appendLogs(`SITE STATUS: ${data.status}`);
+        } catch (error) {
+          setStatus('ошибка', true);
+          appendLogs(`ERROR: ${error.message}`);
+        } finally {
+          setBusy(false);
+        }
+      });
+      el.sshBootstrap.addEventListener('click', async () => {
+        setBusy(true);
+        setStatus('выполняется...');
+        try {
+          const response = await fetch('/api/ssh/bootstrap', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload())
+          });
+          const data = await response.json();
+          if (!response.ok || !data.ok) {
+            throw new Error(data.error || 'Unknown error');
+          }
+
+          if (data.privateKey) {
+            el.privateKey.value = data.privateKey;
+          }
+          setStatus('SSH ключ готов и установлен');
+          appendLogs(`BOOTSTRAP OK: key=${data.keyName} path=${data.privateKeyPath}`);
+        } catch (error) {
+          setStatus('ошибка', true);
+          appendLogs(`ERROR: ${error.message}`);
+        } finally {
+          setBusy(false);
+        }
+      });
+    </script>
+  </body>
+</html>
