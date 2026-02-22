@@ -5,6 +5,7 @@ const path = require('path');
 const fs = require('fs/promises');
 const { promisify } = require('util');
 const { execFile } = require('child_process');
+const { randomUUID } = require('crypto');
 
 const execFileAsync = promisify(execFile);
 
@@ -12,10 +13,33 @@ const app = express();
 const PORT = Number(process.env.PORT || 3000);
 const MAX_HTML_BYTES = 512 * 1024;
 const KEY_DIR = path.join(__dirname, '..', 'data', 'keys');
+const DATA_DIR = path.join(__dirname, '..', 'data');
+const SERVERS_FILE = path.join(DATA_DIR, 'servers.json');
 
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(express.json({ limit: '1mb' }));
 app.use(express.static(path.join(__dirname, '..', 'public')));
+
+async function ensureDataFiles() {
+  await fs.mkdir(DATA_DIR, { recursive: true });
+  try {
+    await fs.access(SERVERS_FILE);
+  } catch {
+    await fs.writeFile(SERVERS_FILE, '[]\n', 'utf8');
+  }
+}
+
+async function readServerProfiles() {
+  await ensureDataFiles();
+  const raw = await fs.readFile(SERVERS_FILE, 'utf8');
+  const data = JSON.parse(raw);
+  return Array.isArray(data) ? data : [];
+}
+
+async function writeServerProfiles(profiles) {
+  await ensureDataFiles();
+  await fs.writeFile(SERVERS_FILE, `${JSON.stringify(profiles, null, 2)}\n`, 'utf8');
+}
 
 function singleQuote(value) {
   return `'${String(value).replace(/'/g, `'"'"'`)}'`;
@@ -235,7 +259,7 @@ server {
     index index.html;
 
     location / {
-        try_files $uri $uri/ =404;
+        try_files \$uri \$uri/ =404;
     }
 }
 EOF
@@ -364,6 +388,38 @@ function getCertbotEmail(payload) {
   }
 
   return certbotEmail;
+}
+
+function pickProfileFields(payload) {
+  return {
+    name: String(payload?.name || '').trim(),
+    host: String(payload?.host || '').trim(),
+    port: String(payload?.port || '22').trim() || '22',
+    username: String(payload?.username || '').trim(),
+    password: String(payload?.password || ''),
+    privateKey: String(payload?.privateKey || ''),
+    domain: String(payload?.domain || '').trim(),
+    keyName: String(payload?.keyName || '').trim(),
+    certbotEmail: String(payload?.certbotEmail || '').trim(),
+    html: String(payload?.html || ''),
+    includeWww: Boolean(payload?.includeWww),
+  };
+}
+
+function validateProfile(profile) {
+  if (!profile.name) {
+    return 'Profile name is required';
+  }
+  if (!profile.host) {
+    return 'SSH host is required';
+  }
+  if (!profile.username) {
+    return 'SSH username is required';
+  }
+  if (profile.port && (Number.isNaN(Number(profile.port)) || Number(profile.port) < 1 || Number(profile.port) > 65535)) {
+    return 'Invalid SSH port';
+  }
+  return null;
 }
 
 app.post('/api/install', async (req, res) => {
@@ -549,6 +605,63 @@ app.get('/api/ssh/managed-keys', async (_req, res) => {
       .map((entry) => entry.name);
 
     res.json({ ok: true, keys });
+  } catch (error) {
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
+app.get('/api/servers', async (_req, res) => {
+  try {
+    const profiles = await readServerProfiles();
+    res.json({ ok: true, servers: profiles });
+  } catch (error) {
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
+app.post('/api/servers', async (req, res) => {
+  try {
+    const incoming = pickProfileFields(req.body);
+    const validationError = validateProfile(incoming);
+    if (validationError) {
+      return res.status(400).json({ ok: false, error: validationError });
+    }
+
+    const profiles = await readServerProfiles();
+    const id = String(req.body?.id || '').trim() || randomUUID();
+    const now = new Date().toISOString();
+    const existingIndex = profiles.findIndex((item) => item.id === id);
+    const record = {
+      id,
+      ...incoming,
+      updatedAt: now,
+      createdAt: existingIndex >= 0 ? profiles[existingIndex].createdAt : now,
+    };
+
+    if (existingIndex >= 0) {
+      profiles[existingIndex] = record;
+    } else {
+      profiles.push(record);
+    }
+
+    await writeServerProfiles(profiles);
+    res.json({ ok: true, server: record, servers: profiles });
+  } catch (error) {
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
+app.delete('/api/servers/:id', async (req, res) => {
+  try {
+    const id = String(req.params.id || '').trim();
+    if (!id) {
+      return res.status(400).json({ ok: false, error: 'Server id is required' });
+    }
+
+    const profiles = await readServerProfiles();
+    const nextProfiles = profiles.filter((item) => item.id !== id);
+    await writeServerProfiles(nextProfiles);
+    res.json({ ok: true, servers: nextProfiles });
   } catch (error) {
     res.status(500).json({ ok: false, error: error.message });
   }
