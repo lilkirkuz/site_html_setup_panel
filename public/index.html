@@ -3,750 +3,505 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SSH Nginx Deployer</title>
+    <title>Панель страниц оплаты</title>
     <style>
-      :root {
-        --bg: #f4f7f4;
-        --surface: #ffffff;
-        --text: #102018;
-        --muted: #4a5f54;
-        --accent: #1d6b3f;
-        --danger: #9c2f2f;
-        --border: #d5e0d8;
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-
-      body {
-        margin: 0;
-        font-family: "Trebuchet MS", "Segoe UI", sans-serif;
-        background: radial-gradient(circle at top left, #ddeee1, var(--bg) 45%);
-        color: var(--text);
-      }
-
-      .app {
-        display: grid;
-        grid-template-columns: 290px minmax(0, 1fr);
-        max-width: 1300px;
-        margin: 24px auto;
-        gap: 16px;
-        padding: 0 16px;
-      }
-
-      .panel {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 14px;
-        box-shadow: 0 18px 40px rgba(24, 58, 40, 0.08);
-      }
-
-      .sidebar {
-        padding: 16px;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        max-height: calc(100vh - 48px);
-      }
-
-      .sidebar h2 {
-        margin: 0;
-        font-size: 1.05rem;
-      }
-
-      .sidebar p {
-        margin: 0;
-        color: var(--muted);
-        font-size: 0.9rem;
-      }
-
-      .server-list {
-        margin: 6px 0 0;
-        padding: 0;
-        list-style: none;
-        overflow: auto;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
-
-      .server-item {
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        padding: 8px 10px;
-        cursor: pointer;
-        background: #f9fcfa;
-      }
-
-      .server-item.active {
-        border-color: var(--accent);
-        background: #e6f2ea;
-      }
-
-      .server-item strong {
-        display: block;
-        font-size: 0.92rem;
-      }
-
-      .server-item small {
-        color: var(--muted);
-      }
-
-      .content {
-        padding: 24px;
-      }
-
-      .top-tabs {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 16px;
-      }
-
-      .tab-page {
-        display: none;
-      }
-
-      .tab-page.active {
-        display: block;
-      }
-
-      .guide {
-        line-height: 1.45;
-      }
-
-      .guide h2 {
-        margin: 0 0 10px;
-      }
-
-      .guide .note {
-        background: #fff5d8;
-        border: 1px solid #f1d687;
-        border-radius: 10px;
-        padding: 10px 12px;
-      }
-
-      h1 {
-        margin: 0 0 8px;
-        font-size: 1.8rem;
-      }
-
-      .intro {
-        margin-top: 0;
-        color: var(--muted);
-      }
-
-      .grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(260px, 1fr));
-        gap: 14px;
-      }
-
-      .field {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-      }
-
-      label {
-        font-size: 0.9rem;
-        font-weight: 700;
-      }
-
-      input,
-      textarea {
-        padding: 10px 12px;
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        font: inherit;
-      }
-
-      textarea {
-        min-height: 140px;
-        resize: vertical;
-      }
-
-      .full {
-        grid-column: 1 / -1;
-      }
-
-      .actions,
-      .server-actions {
-        margin-top: 16px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-      }
-
-      .log-actions {
-        margin-top: 10px;
-        display: flex;
-        gap: 10px;
-      }
-
-      button {
-        border: none;
-        padding: 10px 14px;
-        border-radius: 10px;
-        font: inherit;
-        cursor: pointer;
-        transition: transform 120ms ease, opacity 120ms ease;
-      }
-
-      button:hover {
-        transform: translateY(-1px);
-      }
-
-      button:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-      }
-
-      .primary {
-        background: var(--accent);
-        color: white;
-      }
-
-      .secondary {
-        background: #e7efe9;
-        color: var(--text);
-      }
-
-      .danger {
-        background: var(--danger);
-        color: white;
-      }
-
-      .status {
-        margin-top: 12px;
-        font-weight: 700;
-      }
-
-      pre {
-        margin-top: 14px;
-        background: #0f1712;
-        color: #d9e8dc;
-        border-radius: 10px;
-        padding: 14px;
-        overflow: auto;
-        min-height: 180px;
-      }
-
-      @media (max-width: 980px) {
-        .app {
-          grid-template-columns: 1fr;
-          margin: 0;
-          padding: 0;
-          gap: 0;
-        }
-
-        .panel {
-          border-radius: 0;
-          border-left: 0;
-          border-right: 0;
-        }
-
-        .sidebar {
-          max-height: none;
-        }
-      }
+      :root { --bg:#0b1020; --surface:#121a2f; --surface2:#0f1627; --text:#eef4ff; --muted:#9cb0d1; --accent:#5b8cff; --ok:#53d6a5; --danger:#ff6b7a; --border:rgba(255,255,255,.08); }
+      * { box-sizing:border-box; }
+      body { margin:0; font-family: Inter, system-ui, sans-serif; background: radial-gradient(circle at top left, #20315d 0%, var(--bg) 55%); color:var(--text); overflow:hidden; }
+      .app { height:100vh; padding:16px; display:grid; grid-template-columns: 290px minmax(0,1fr); gap:14px; }
+      .panel { background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)); border:1px solid var(--border); border-radius:22px; box-shadow:0 24px 70px rgba(0,0,0,.35); min-height:0; }
+      .sidebar, .main { padding:18px; overflow:auto; }
+      h1,h2,h3,p { margin:0; }
+      .muted { color:var(--muted); }
+      .list { display:grid; gap:10px; margin-top:14px; }
+      .item { padding:12px; border-radius:16px; background:var(--surface2); border:1px solid var(--border); cursor:pointer; }
+      .item.active { border-color:rgba(91,140,255,.8); box-shadow:0 0 0 1px rgba(91,140,255,.25) inset; }
+      .item-top { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; }
+      .badge { font-size:12px; padding:4px 8px; border-radius:999px; background:rgba(83,214,165,.12); color:#baf3dd; white-space:nowrap; }
+      .badge.off { background:rgba(255,107,122,.12); color:#ffc4cb; }
+      .layout { display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:14px; align-items:start; }
+      .column { background:rgba(15,22,39,.72); border:1px solid var(--border); border-radius:20px; padding:16px; min-height:calc(100vh - 48px); }
+      .column h2 { font-size:20px; margin-bottom:6px; }
+      .grid { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:12px; margin-top:14px; }
+      .field { display:grid; gap:6px; }
+      label { font-size:13px; color:var(--muted); }
+      input, textarea, select { width:100%; padding:12px 14px; border-radius:14px; border:1px solid var(--border); background:#0d1425; color:var(--text); font:inherit; }
+      textarea { min-height:120px; resize:vertical; }
+      .full { grid-column:1/-1; }
+      .actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+      button { border:0; border-radius:14px; padding:11px 14px; font:inherit; font-weight:700; cursor:pointer; }
+      .primary { background:var(--accent); color:white; }
+      .secondary { background:#1a2440; color:var(--text); border:1px solid var(--border); }
+      .danger { background:var(--danger); color:white; }
+      .ok { background:var(--ok); color:#072317; }
+      .status { margin-top:12px; min-height:24px; color:#cfe1ff; }
+      .cards { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:12px; margin-top:16px; }
+      .card { background:var(--surface2); border:1px solid var(--border); border-radius:18px; padding:14px; }
+      .row { display:flex; justify-content:space-between; gap:12px; align-items:center; margin-top:10px; }
+      .row.stack { flex-direction:column; align-items:flex-start; }
+      .link { color:#8db2ff; word-break:normal; overflow-wrap:anywhere; line-height:1.35; }
+      .small { font-size:13px; }
+      .req-list { display:grid; gap:10px; margin-top:14px; }
+      .req-item { padding:12px; border-radius:16px; background:#0d1425; border:1px solid var(--border); display:grid; gap:10px; }
+      .req-top { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+      .pill { padding:4px 8px; border-radius:999px; background:rgba(91,140,255,.14); color:#b9cdfd; font-size:12px; }
+      .mini { padding:8px 12px; border-radius:12px; }
+      .toast-wrap { position:fixed; right:16px; bottom:16px; display:grid; gap:10px; z-index:50; pointer-events:none; }
+      .toast { min-width:240px; max-width:360px; padding:14px 16px; border-radius:16px; background:rgba(13,20,37,.96); border:1px solid var(--border); box-shadow:0 18px 50px rgba(0,0,0,.35); color:var(--text); transform:translateY(8px); opacity:0; animation:toast-in .18s ease forwards; }
+      .toast.ok { border-color:rgba(83,214,165,.35); }
+      .toast.err { border-color:rgba(255,107,122,.35); }
+      .toast-title { font-weight:700; margin-bottom:4px; }
+      .toast-text { color:var(--muted); font-size:13px; line-height:1.35; overflow-wrap:anywhere; }
+      @keyframes toast-in { to { transform:translateY(0); opacity:1; } }
+      @media (max-width: 1180px) { body{overflow:auto} .app{height:auto; grid-template-columns:1fr} .layout{grid-template-columns:1fr} .column{min-height:auto} }
     </style>
   </head>
   <body>
-    <main class="app">
+    <div class="app">
       <aside class="panel sidebar">
-        <h2>Серверы</h2>
-        <p>Сохраняй несколько серверов и переключайся между ними.</p>
-        <ul class="server-list" id="serverList"></ul>
-        <div class="server-actions">
-          <button id="newServer" class="secondary">Новый профиль</button>
-          <button id="saveServer" class="primary">Сохранить профиль</button>
-          <button id="deleteServer" class="danger">Удалить профиль</button>
+        <h2>Страницы</h2>
+        <p class="muted small">Выбирай страницу слева, редактируй справа без переходов.</p>
+        <div class="actions">
+          <button class="primary" id="newPageBtn">Новая страница</button>
+          <button class="secondary" id="refreshBtn">Обновить</button>
         </div>
+        <div class="list" id="pageList"></div>
       </aside>
 
-      <section class="panel content">
-        <div class="top-tabs">
-          <button id="tabPanel" class="primary">Панель</button>
-          <button id="tabGuide" class="secondary">Инструкция</button>
-        </div>
-
-        <div id="pagePanel" class="tab-page active">
-          <h1>SSH Nginx Deployer</h1>
-          <p class="intro">Управление установкой Nginx, SSL Certbot и деплоем HTML на Ubuntu сервер по SSH.</p>
-
-          <section class="grid">
-          <div class="field full">
-            <label for="profileName">Название профиля</label>
-            <input id="profileName" placeholder="Prod EU" />
-          </div>
-
-          <div class="field">
-            <label for="host">SSH Host</label>
-            <input id="host" placeholder="203.0.113.10" />
-          </div>
-
-          <div class="field">
-            <label for="port">SSH Port</label>
-            <input id="port" value="22" />
-          </div>
-
-          <div class="field">
-            <label for="username">SSH User</label>
-            <input id="username" placeholder="ubuntu" />
-          </div>
-
-          <div class="field">
-            <label for="password">SSH Password (optional, for bootstrap)</label>
-            <input id="password" type="password" placeholder="server password" />
-          </div>
-
-          <div class="field">
-            <label for="domain">Domain</label>
-            <input id="domain" placeholder="example.com" />
-          </div>
-
-          <div class="field">
-            <label for="certbotEmail">Certbot Email (optional)</label>
-            <input id="certbotEmail" placeholder="admin@example.com" />
-          </div>
-
-          <div class="field full">
-            <label for="keyName">Managed Key Name</label>
-            <input id="keyName" value="deployer" />
-          </div>
-
-          <div class="field full">
-            <label for="privateKey">SSH Private Key</label>
-            <textarea id="privateKey" placeholder="-----BEGIN OPENSSH PRIVATE KEY-----"></textarea>
-          </div>
-
-          <div class="field full">
-            <label for="html">HTML Content (index.html)</label>
-            <textarea id="html" placeholder="<!doctype html><html>...</html>"></textarea>
-          </div>
-
-          <div class="field full">
-            <label>
-              <input type="checkbox" id="includeWww" />
-              Добавить www-домен в сертификат
-            </label>
-          </div>
+      <main class="panel main">
+        <div class="layout">
+          <section class="column">
+            <h2>1. Страница</h2>
+            <p class="muted small">Название, сумма, короткий адрес, редирект и кнопка.</p>
+            <div class="grid">
+              <div class="field full"><label>Название</label><input id="pageTitle" placeholder="Оплата тарифа" /></div>
+              <div class="field"><label>Сумма</label><input id="pageAmount" placeholder="1000 ₽" /></div>
+              <div class="field"><label>Короткий адрес</label><input id="pageSlug" placeholder="payment-1000" /></div>
+              <div class="field"><label>Кнопка «Я оплатил»</label><select id="buttonMode"><option value="notice">Показать сообщение</option><option value="redirect">Перейти по ссылке</option></select></div>
+              <div class="field full"><label>Ссылка редиректа</label><input id="buttonUrl" placeholder="https://t.me/..." /></div>
+            </div>
+            <div class="actions">
+              <button class="primary" id="savePageBtn">Сохранить страницу</button>
+              <button class="secondary" id="togglePageBtn">Вкл / Выкл</button>
+              <button class="danger" id="deletePageBtn">Удалить</button>
+            </div>
+            <div class="status" id="pageStatus"></div>
           </section>
 
-          <div class="actions">
-            <button id="sshBootstrap" class="primary">1. Автонастроить SSH ключ</button>
-            <button id="install" class="secondary">2. Установить Nginx + Certbot</button>
-            <button id="deploy" class="secondary">3. Задеплоить HTML</button>
-            <button id="certbot" class="secondary">4. Получить SSL</button>
-            <button id="enable" class="secondary">5. Включить сайт</button>
-            <button id="siteStatus" class="secondary">6. Проверить статус сайта</button>
-            <button id="disable" class="danger">Выключить сайт</button>
-            <button id="fullDeploy" class="primary">Быстрый: Полный деплой</button>
-          </div>
+          <section class="column">
+            <h2>2. Реквизиты</h2>
+            <p class="muted small">Добавляй несколько вариантов. На странице они будут меняться случайно.</p>
+            <div class="actions">
+              <button class="primary" id="addRequisiteBtn">+</button>
+              <button class="secondary" id="saveMethodBtn">Сохранить набор</button>
+            </div>
+            <div class="req-list" id="reqList"></div>
+            <div class="status" id="methodStatus"></div>
+          </section>
 
-          <div class="status" id="status">Статус: готово</div>
-          <div class="log-actions">
-            <button id="copyLogs" class="secondary">Копировать лог</button>
-            <button id="clearLogs" class="secondary">Очистить лог</button>
-          </div>
-          <pre id="logs">Логи появятся здесь...</pre>
+          <section class="column">
+            <h2>3. Публикация</h2>
+            <p class="muted small">Тестовая ссылка, домен и команды публикации.</p>
+            <div class="grid">
+              <div class="field full"><label>Домен</label><input id="publicDomain" placeholder="example.com" /></div>
+              <div class="field full"><label>Локальный базовый URL</label><input id="previewBaseUrl" placeholder="http://localhost:3000" /></div>
+              <div class="field"><label>SSH host</label><input id="sshHost" placeholder="203.0.113.10" /></div>
+              <div class="field"><label>SSH port</label><input id="sshPort" placeholder="22" /></div>
+              <div class="field"><label>SSH user</label><input id="sshUser" placeholder="ubuntu" /></div>
+              <div class="field"><label>Certbot email</label><input id="certbotEmail" placeholder="admin@example.com" /></div>
+              <div class="field full"><label>SSH private key</label><textarea id="sshPrivateKey" placeholder="-----BEGIN OPENSSH PRIVATE KEY-----"></textarea></div>
+              <div class="field full"><label>SSH password</label><input id="sshPassword" type="password" placeholder="optional" /></div>
+            </div>
+            <div class="actions">
+              <button class="primary" id="saveSettingsBtn">Сохранить публикацию</button>
+              <button class="secondary" id="saveAllBtn">Сохранить всё</button>
+              <button class="secondary" id="installNginxBtn">Установить Nginx и Certbot</button>
+              <button class="secondary" id="configureNginxBtn">Настроить домен</button>
+              <button class="ok" id="issueCertBtn">Получить сертификат</button>
+            </div>
+            <div class="status" id="settingsStatus"></div>
+            <div class="cards" style="margin-top:16px">
+              <div class="card">
+                <div class="muted small">Тест</div>
+                <div class="row stack">
+                  <span class="link" id="testLinkText">/test/{slug}</span>
+                  <button class="secondary mini" id="copyTestLinkBtn">Копировать</button>
+                </div>
+              </div>
+              <div class="card">
+                <div class="muted small">Публикация</div>
+                <div class="row stack"><span class="link" id="publicLinkText">Домен не задан</span></div>
+              </div>
+            </div>
+          </section>
         </div>
-
-        <div id="pageGuide" class="tab-page guide">
-          <h2>Инструкция для новичка</h2>
-          <p>Ниже порядок действий с нуля, чтобы запустить сайт на домене.</p>
-          <ol>
-            <li>Создай профиль сервера слева и нажми <b>Сохранить профиль</b>.</li>
-            <li>Заполни <b>SSH Host</b>, <b>SSH User</b>, <b>Domain</b>, вставь HTML в поле <b>HTML Content</b>.</li>
-            <li>Если это первый запуск, укажи временно пароль SSH и нажми <b>1. Автонастроить SSH ключ</b>.</li>
-            <li>Нажми <b>2. Установить Nginx + Certbot</b>.</li>
-            <li>Нажми <b>3. Задеплоить HTML</b>.</li>
-            <li>Нажми <b>4. Получить SSL</b>.</li>
-            <li>Нажми <b>5. Включить сайт</b> и проверь <b>6. Проверить статус сайта</b>.</li>
-          </ol>
-          <p class="note">
-            Важно для Cloudflare и похожих DNS-прокси: на время шага <b>Получить SSL</b> выключи проксирование (режим
-            DNS only / серое облако), иначе Certbot может не пройти проверку домена.
-          </p>
-          <p>После успешного SSL можешь вернуть проксирование обратно.</p>
-          <p>Если что-то пошло не так: открой лог, нажми <b>Копировать лог</b> и пришли его.</p>
-        </div>
-      </section>
-    </main>
+      </main>
+    </div>
+    <div class="toast-wrap" id="toastWrap"></div>
 
     <script>
-      const ids = [
-        'serverList',
-        'newServer',
-        'saveServer',
-        'deleteServer',
-        'tabPanel',
-        'tabGuide',
-        'pagePanel',
-        'pageGuide',
-        'profileName',
-        'host',
-        'port',
-        'username',
-        'password',
-        'domain',
-        'keyName',
-        'certbotEmail',
-        'privateKey',
-        'html',
-        'includeWww',
-        'status',
-        'logs',
-        'copyLogs',
-        'clearLogs',
-        'fullDeploy',
-        'install',
-        'deploy',
-        'certbot',
-        'enable',
-        'disable',
-        'siteStatus',
-        'sshBootstrap'
-      ];
+      const state = { pages: [], methods: [], currentPageId: null, draftPage: null, settings: { publicDomain: '', previewBaseUrl: 'http://localhost:3000', sshHost: '', sshPort: '22', sshUser: '', sshPrivateKey: '', sshPassword: '', certbotEmail: '' } };
+      const el = (id) => document.getElementById(id);
+      const fmt = (v) => (v || '').toString();
+      const setStatus = (id, msg) => { el(id).textContent = msg; };
+      function toast(title, text, kind = 'ok') {
+        const wrap = el('toastWrap');
+        const node = document.createElement('div');
+        node.className = `toast ${kind}`;
+        node.innerHTML = `<div class="toast-title">${title}</div><div class="toast-text">${text}</div>`;
+        wrap.appendChild(node);
+        setTimeout(() => {
+          node.style.opacity = '0';
+          node.style.transform = 'translateY(8px)';
+        }, 2600);
+        setTimeout(() => node.remove(), 3100);
+      }
 
-      const el = Object.fromEntries(ids.map((id) => [id, document.getElementById(id)]));
+      async function request(url, options) {
+        const res = await fetch(url, {
+          headers: { 'Content-Type': 'application/json' },
+          ...options,
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.ok === false) throw new Error(data.error || 'Ошибка запроса');
+        return data;
+      }
 
-      const actionButtons = [
-        el.fullDeploy,
-        el.install,
-        el.deploy,
-        el.certbot,
-        el.enable,
-        el.disable,
-        el.siteStatus,
-        el.sshBootstrap,
-        el.newServer,
-        el.saveServer,
-        el.deleteServer,
-        el.copyLogs,
-        el.clearLogs
-      ];
+      function renderPageList() {
+        const list = el('pageList');
+        list.innerHTML = '';
+        state.pages.forEach((page) => {
+          const node = document.createElement('div');
+          node.className = 'item' + (page.id === state.currentPageId ? ' active' : '');
+          node.innerHTML = `
+            <div class="item-top">
+              <div>
+                <strong>${page.title}</strong>
+                <div class="muted small">${page.amount}</div>
+              </div>
+              <span class="badge ${page.active ? '' : 'off'}">${page.active ? 'Active' : 'Off'}</span>
+            </div>
+            <div class="muted small" style="margin-top:8px">/${page.slug}</div>
+          `;
+          node.onclick = () => loadPage(page.id);
+          list.appendChild(node);
+        });
+      }
 
-      const initialForm = {
-        id: '',
-        name: '',
-        host: '',
-        port: '22',
-        username: '',
-        password: '',
-        privateKey: '',
-        domain: '',
-        keyName: 'deployer',
-        certbotEmail: '',
-        html: '',
-        includeWww: false
+      function renderMethodOptions() {
+        return state.methods;
+      }
+
+      function renderSummary() {
+        const page = state.pages.find((item) => item.id === state.currentPageId) || state.pages[0];
+        if (page) {
+          const previewBase = (state.settings.previewBaseUrl || location.origin).replace(/\/$/, '');
+          el('testLinkText').textContent = `${previewBase}/test/${page.slug}`;
+          el('publicLinkText').textContent = state.settings.publicDomain ? `https://${state.settings.publicDomain}/p/${page.slug}` : 'Домен не задан';
+        }
+      }
+
+      function renderRequisites() {
+        const list = el('reqList');
+        const page = state.draftPage || state.pages.find((item) => item.id === state.currentPageId) || null;
+        const requisites = page?.requisites?.length ? page.requisites : [];
+        list.innerHTML = '';
+        if (!requisites.length) {
+          const empty = document.createElement('div');
+          empty.className = 'muted small';
+          empty.textContent = 'Пока нет реквизитов. Нажми + и добавь минимум один набор.';
+          list.appendChild(empty);
+          return;
+        }
+        requisites.forEach((req, index) => {
+          const node = document.createElement('div');
+          node.className = 'req-item';
+          node.innerHTML = `
+            <div class="req-top">
+              <span class="pill">Реквизит ${index + 1}</span>
+              <button class="danger mini" data-remove="${req.id}">Удалить</button>
+            </div>
+            <div class="field"><label>Номер</label><input data-field="number" data-id="${req.id}" value="${fmt(req.number)}" placeholder="+79990000000" /></div>
+            <div class="field"><label>Банк</label><input data-field="bank" data-id="${req.id}" value="${fmt(req.bank)}" placeholder="Тинькофф" /></div>
+            <div class="field"><label>Получатель</label><input data-field="recipient" data-id="${req.id}" value="${fmt(req.recipient)}" placeholder="Иванов И.И." /></div>
+          `;
+          list.appendChild(node);
+        });
+        list.querySelectorAll('[data-remove]').forEach((btn) => {
+          btn.onclick = () => removeRequisite(btn.dataset.remove);
+        });
+        list.querySelectorAll('input[data-field]').forEach((input) => {
+          input.oninput = () => updateRequisite(input.dataset.id, input.dataset.field, input.value);
+        });
+      }
+
+      function loadPage(id) {
+        const page = state.pages.find((item) => item.id === id);
+        if (!page) return;
+        state.currentPageId = page.id;
+        state.draftPage = JSON.parse(JSON.stringify(page));
+        el('pageTitle').value = fmt(page.title);
+        el('pageSlug').value = fmt(page.slug);
+        el('pageAmount').value = fmt(page.amount);
+        el('buttonMode').value = page.buttonMode || 'notice';
+        el('buttonUrl').value = fmt(page.buttonUrl);
+        renderPageList();
+        renderSummary();
+        renderRequisites();
+      }
+
+      function ensureCurrentPage() {
+        return state.draftPage || state.pages.find((item) => item.id === state.currentPageId) || null;
+      }
+
+      function updateRequisite(id, field, value) {
+        const page = ensureCurrentPage();
+        if (!page) return;
+        page.requisites = Array.isArray(page.requisites) ? page.requisites : [];
+        const req = page.requisites.find((item) => item.id === id);
+        if (!req) return;
+        req[field] = value;
+      }
+
+      function addRequisite() {
+        const page = ensureCurrentPage();
+        if (!page) return;
+        page.requisites = Array.isArray(page.requisites) ? page.requisites : [];
+        page.requisites.push({ id: crypto.randomUUID(), number: '', bank: '', recipient: '' });
+        renderRequisites();
+      }
+
+      function removeRequisite(id) {
+        const page = ensureCurrentPage();
+        if (!page) return;
+        page.requisites = (page.requisites || []).filter((item) => item.id !== id);
+        renderRequisites();
+      }
+
+      async function refresh() {
+        const [pagesData, methodsData, settingsData] = await Promise.all([
+          request('/api/pages'),
+          request('/api/methods'),
+          request('/api/settings'),
+        ]);
+        state.pages = pagesData.pages || [];
+        state.methods = methodsData.methods || [];
+        state.settings = settingsData.settings || state.settings;
+        if (!state.currentPageId && state.pages[0]) state.currentPageId = state.pages[0].id;
+        if (!state.draftPage && state.currentPageId) {
+          const existing = state.pages.find((item) => item.id === state.currentPageId);
+          if (existing) state.draftPage = JSON.parse(JSON.stringify(existing));
+        }
+        renderPageList();
+        renderMethodOptions();
+        renderSummary();
+        renderRequisites();
+        el('publicDomain').value = state.settings.publicDomain || '';
+        el('previewBaseUrl').value = state.settings.previewBaseUrl || 'http://localhost:3000';
+        el('sshHost').value = state.settings.sshHost || '';
+        el('sshPort').value = state.settings.sshPort || '22';
+        el('sshUser').value = state.settings.sshUser || '';
+        el('sshPrivateKey').value = state.settings.sshPrivateKey || '';
+        el('sshPassword').value = state.settings.sshPassword || '';
+        el('certbotEmail').value = state.settings.certbotEmail || '';
+        if (state.currentPageId) loadPage(state.currentPageId);
+      }
+
+      async function savePage() {
+        const draft = ensureCurrentPage();
+        const body = {
+          id: state.currentPageId || undefined,
+          title: el('pageTitle').value,
+          slug: el('pageSlug').value,
+          amount: el('pageAmount').value,
+          buttonMode: el('buttonMode').value,
+          buttonUrl: el('buttonUrl').value,
+          active: true,
+          requisites: (draft?.requisites || []),
+        };
+        const data = await request('/api/pages', { method: 'POST', body: JSON.stringify(body) });
+        state.pages = data.pages || [];
+        state.currentPageId = data.page.id;
+        state.draftPage = JSON.parse(JSON.stringify(data.page));
+        setStatus('pageStatus', 'Сохранено');
+        toast('Страница сохранена', `Страница "${data.page.title}" обновлена`);
+        renderPageList();
+        renderSummary();
+        renderRequisites();
+      }
+
+      async function saveMethod() {
+        await savePage();
+        setStatus('methodStatus', 'Реквизиты сохранены в страницу');
+        toast('Реквизиты сохранены', 'Данные записаны в текущую страницу');
+      }
+
+      async function saveAll() {
+        await savePage();
+        await request('/api/settings', {
+          method: 'POST',
+          body: JSON.stringify({
+            publicDomain: el('publicDomain').value,
+            previewBaseUrl: el('previewBaseUrl').value,
+            sshHost: el('sshHost').value,
+            sshPort: el('sshPort').value,
+            sshUser: el('sshUser').value,
+            sshPrivateKey: el('sshPrivateKey').value,
+            sshPassword: el('sshPassword').value,
+            certbotEmail: el('certbotEmail').value,
+          }),
+        });
+        state.settings = {
+          publicDomain: el('publicDomain').value,
+          previewBaseUrl: el('previewBaseUrl').value,
+          sshHost: el('sshHost').value,
+          sshPort: el('sshPort').value,
+          sshUser: el('sshUser').value,
+          sshPrivateKey: el('sshPrivateKey').value,
+          sshPassword: el('sshPassword').value,
+          certbotEmail: el('certbotEmail').value,
+        };
+        setStatus('settingsStatus', 'Сохранено');
+        toast('Сохранено всё', 'Страница, реквизиты и публикация обновлены');
+        await refresh();
+      }
+
+      async function togglePage() {
+        if (!state.currentPageId) return;
+        await request(`/api/pages/${state.currentPageId}/toggle`, { method: 'PATCH', body: '{}' });
+        const data = await request('/api/pages');
+        state.pages = data.pages || [];
+        renderPageList();
+        renderSummary();
+      }
+
+      async function deletePage() {
+        if (!state.currentPageId) return;
+        await request(`/api/pages/${state.currentPageId}`, { method: 'DELETE' });
+        state.currentPageId = null;
+        await refresh();
+      }
+
+      el('refreshBtn').onclick = refresh;
+      el('newPageBtn').onclick = () => {
+        state.currentPageId = null;
+        state.draftPage = { id: null, title: '', slug: '', amount: '', buttonMode: 'notice', buttonUrl: '', active: true, requisites: [] };
+        ['pageTitle', 'pageSlug', 'pageAmount', 'buttonUrl'].forEach((id) => (el(id).value = ''));
+        el('buttonMode').value = 'notice';
+        renderPageList();
+        renderSummary();
+        renderRequisites();
+      };
+      el('savePageBtn').onclick = () => savePage().catch((e) => setStatus('pageStatus', e.message));
+      el('togglePageBtn').onclick = () => togglePage().catch((e) => setStatus('pageStatus', e.message));
+      el('deletePageBtn').onclick = () => deletePage().catch((e) => setStatus('pageStatus', e.message));
+      el('saveMethodBtn').onclick = () => saveMethod().catch((e) => setStatus('methodStatus', e.message));
+      el('addRequisiteBtn').onclick = () => addRequisite();
+      el('saveAllBtn').onclick = () => saveAll().catch((e) => {
+        setStatus('settingsStatus', e.message);
+        toast('Ошибка', e.message, 'err');
+      });
+      el('installNginxBtn').onclick = async () => {
+        try {
+          const data = await request('/api/publish/install', {
+            method: 'POST',
+            body: JSON.stringify({
+              sshHost: el('sshHost').value,
+              sshPort: el('sshPort').value,
+              sshUser: el('sshUser').value,
+              sshPrivateKey: el('sshPrivateKey').value,
+              sshPassword: el('sshPassword').value,
+            }),
+          });
+          setStatus('settingsStatus', data.stdout || 'Nginx installed');
+          toast('Nginx и Certbot', 'Установка завершена');
+        } catch (e) {
+          setStatus('settingsStatus', e.message);
+          toast('Ошибка', e.message, 'err');
+        }
+      };
+      el('configureNginxBtn').onclick = async () => {
+        try {
+          const data = await request('/api/publish/configure', {
+            method: 'POST',
+            body: JSON.stringify({
+              publicDomain: el('publicDomain').value,
+              previewBaseUrl: el('previewBaseUrl').value,
+              sshHost: el('sshHost').value,
+              sshPort: el('sshPort').value,
+              sshUser: el('sshUser').value,
+              sshPrivateKey: el('sshPrivateKey').value,
+              sshPassword: el('sshPassword').value,
+            }),
+          });
+          state.settings = data.settings || state.settings;
+          setStatus('settingsStatus', data.stdout || 'Domain configured');
+          toast('Домен настроен', data.stdout || 'Настройка домена завершена');
+          await refresh();
+        } catch (e) {
+          setStatus('settingsStatus', e.message);
+          toast('Ошибка', e.message, 'err');
+        }
+      };
+      el('issueCertBtn').onclick = async () => {
+        try {
+          const data = await request('/api/publish/certbot', {
+            method: 'POST',
+            body: JSON.stringify({
+              publicDomain: el('publicDomain').value,
+              certbotEmail: el('certbotEmail').value,
+              includeWww: false,
+              sshHost: el('sshHost').value,
+              sshPort: el('sshPort').value,
+              sshUser: el('sshUser').value,
+              sshPrivateKey: el('sshPrivateKey').value,
+              sshPassword: el('sshPassword').value,
+            }),
+          });
+          state.settings = data.settings || state.settings;
+          setStatus('settingsStatus', data.stdout || 'Certificate issued');
+          toast('Сертификат получен', data.stdout || 'Сертификат выдан');
+          await refresh();
+        } catch (e) {
+          setStatus('settingsStatus', e.message);
+          toast('Ошибка', e.message, 'err');
+        }
+      };
+      el('saveSettingsBtn').onclick = async () => {
+        try {
+          const data = await request('/api/settings', {
+            method: 'POST',
+            body: JSON.stringify({
+              publicDomain: el('publicDomain').value,
+              previewBaseUrl: el('previewBaseUrl').value,
+              sshHost: el('sshHost').value,
+              sshPort: el('sshPort').value,
+              sshUser: el('sshUser').value,
+              sshPrivateKey: el('sshPrivateKey').value,
+              sshPassword: el('sshPassword').value,
+              certbotEmail: el('certbotEmail').value,
+            }),
+          });
+          state.settings = data.settings || state.settings;
+          setStatus('settingsStatus', 'Сохранено');
+          toast('Публикация сохранена', 'Настройки публикации обновлены');
+          await refresh();
+        } catch (e) {
+          setStatus('settingsStatus', e.message);
+          toast('Ошибка', e.message, 'err');
+        }
+      };
+      el('copyTestLinkBtn').onclick = () => {
+        const page = state.pages.find((item) => item.id === state.currentPageId) || state.pages[0];
+        if (page) {
+          navigator.clipboard.writeText(`${location.origin}/test/${page.slug}`);
+          toast('Ссылка скопирована', `${location.origin}/test/${page.slug}`);
+        }
       };
 
-      let currentServerId = '';
-      let servers = [];
-
-      function setBusy(isBusy) {
-        actionButtons.forEach((btn) => {
-          btn.disabled = isBusy;
-        });
-      }
-
-      function switchPage(page) {
-        const isPanel = page === 'panel';
-        el.pagePanel.classList.toggle('active', isPanel);
-        el.pageGuide.classList.toggle('active', !isPanel);
-        el.tabPanel.className = isPanel ? 'primary' : 'secondary';
-        el.tabGuide.className = isPanel ? 'secondary' : 'primary';
-      }
-
-      function setStatus(text, isError = false) {
-        el.status.textContent = `Статус: ${text}`;
-        el.status.style.color = isError ? '#9c2f2f' : '#1d6b3f';
-      }
-
-      function appendLogs(text) {
-        const now = new Date().toLocaleTimeString();
-        el.logs.textContent = `[${now}] ${text}\n\n` + el.logs.textContent;
-      }
-
-      async function copyLogsToClipboard() {
-        const content = el.logs.textContent || '';
-        if (!content.trim()) {
-          setStatus('лог пустой', true);
-          return;
-        }
-
-        try {
-          if (navigator.clipboard && window.isSecureContext) {
-            await navigator.clipboard.writeText(content);
-          } else {
-            const temp = document.createElement('textarea');
-            temp.value = content;
-            document.body.appendChild(temp);
-            temp.select();
-            document.execCommand('copy');
-            temp.remove();
-          }
-          setStatus('лог скопирован');
-        } catch (error) {
-          setStatus('не удалось скопировать лог', true);
-          appendLogs(`ERROR: ${error.message}`);
-        }
-      }
-
-      function getFormPayload() {
-        return {
-          id: currentServerId,
-          name: el.profileName.value.trim(),
-          host: el.host.value.trim(),
-          port: el.port.value.trim(),
-          username: el.username.value.trim(),
-          password: el.password.value,
-          privateKey: el.privateKey.value,
-          domain: el.domain.value.trim(),
-          keyName: el.keyName.value.trim(),
-          certbotEmail: el.certbotEmail.value.trim(),
-          html: el.html.value,
-          includeWww: el.includeWww.checked
-        };
-      }
-
-      function fillForm(profile) {
-        const p = { ...initialForm, ...(profile || {}) };
-        currentServerId = p.id || '';
-        el.profileName.value = p.name || '';
-        el.host.value = p.host || '';
-        el.port.value = p.port || '22';
-        el.username.value = p.username || '';
-        el.password.value = p.password || '';
-        el.privateKey.value = p.privateKey || '';
-        el.domain.value = p.domain || '';
-        el.keyName.value = p.keyName || 'deployer';
-        el.certbotEmail.value = p.certbotEmail || '';
-        el.html.value = p.html || '';
-        el.includeWww.checked = Boolean(p.includeWww);
-        renderServers();
-      }
-
-      function renderServers() {
-        el.serverList.textContent = '';
-        if (servers.length === 0) {
-          const li = document.createElement('li');
-          li.className = 'server-item';
-          li.innerHTML = '<strong>Пока пусто</strong><small>Сохрани первый профиль.</small>';
-          el.serverList.appendChild(li);
-          return;
-        }
-
-        servers.forEach((server) => {
-          const li = document.createElement('li');
-          li.className = `server-item${server.id === currentServerId ? ' active' : ''}`;
-          li.innerHTML = `<strong>${server.name}</strong><small>${server.username}@${server.host}:${server.port || '22'}</small>`;
-          li.addEventListener('click', () => fillForm(server));
-          el.serverList.appendChild(li);
-        });
-      }
-
-      async function loadServers(preferId = '') {
-        const response = await fetch('/api/servers');
-        const data = await response.json();
-        if (!response.ok || !data.ok) {
-          throw new Error(data.error || 'Cannot load servers');
-        }
-
-        servers = data.servers || [];
-        if (preferId) {
-          const match = servers.find((item) => item.id === preferId);
-          if (match) {
-            fillForm(match);
-            return;
-          }
-        }
-
-        if (!currentServerId && servers.length > 0) {
-          fillForm(servers[0]);
-          return;
-        }
-
-        if (currentServerId) {
-          const current = servers.find((item) => item.id === currentServerId);
-          if (current) {
-            fillForm(current);
-            return;
-          }
-        }
-
-        renderServers();
-      }
-
-      async function saveCurrentProfile() {
-        const payload = getFormPayload();
-        setBusy(true);
-        setStatus('сохраняем профиль...');
-        try {
-          const response = await fetch('/api/servers', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          });
-          const data = await response.json();
-          if (!response.ok || !data.ok) {
-            throw new Error(data.error || 'Cannot save profile');
-          }
-
-          servers = data.servers || [];
-          currentServerId = data.server.id;
-          renderServers();
-          setStatus('профиль сохранен');
-          appendLogs(`PROFILE SAVED: ${data.server.name}`);
-        } catch (error) {
-          setStatus('ошибка', true);
-          appendLogs(`ERROR: ${error.message}`);
-        } finally {
-          setBusy(false);
-        }
-      }
-
-      async function deleteCurrentProfile() {
-        if (!currentServerId) {
-          setStatus('сначала выбери профиль', true);
-          return;
-        }
-
-        setBusy(true);
-        setStatus('удаляем профиль...');
-        try {
-          const response = await fetch(`/api/servers/${encodeURIComponent(currentServerId)}`, {
-            method: 'DELETE'
-          });
-          const data = await response.json();
-          if (!response.ok || !data.ok) {
-            throw new Error(data.error || 'Cannot delete profile');
-          }
-
-          servers = data.servers || [];
-          if (servers.length > 0) {
-            fillForm(servers[0]);
-          } else {
-            fillForm(initialForm);
-          }
-          setStatus('профиль удален');
-          appendLogs('PROFILE DELETED');
-        } catch (error) {
-          setStatus('ошибка', true);
-          appendLogs(`ERROR: ${error.message}`);
-        } finally {
-          setBusy(false);
-        }
-      }
-
-      async function callApi(path, body) {
-        setBusy(true);
-        setStatus('выполняется...');
-
-        try {
-          const response = await fetch(path, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body)
-          });
-
-          const data = await response.json();
-          if (!response.ok || !data.ok) {
-            throw new Error(data.error || 'Unknown error');
-          }
-
-          setStatus('успешно');
-          if (data.steps) {
-            data.steps.forEach((step) => {
-              appendLogs(`${step.step.toUpperCase()}\n${step.stdout || ''}\n${step.stderr || ''}`.trim());
-            });
-          } else {
-            appendLogs(`${data.stdout || ''}\n${data.stderr || ''}`.trim());
-          }
-        } catch (error) {
-          setStatus('ошибка', true);
-          appendLogs(`ERROR: ${error.message}`);
-        } finally {
-          setBusy(false);
-        }
-      }
-
-      el.newServer.addEventListener('click', () => {
-        fillForm(initialForm);
-        setStatus('новый профиль');
-      });
-      el.tabPanel.addEventListener('click', () => switchPage('panel'));
-      el.tabGuide.addEventListener('click', () => switchPage('guide'));
-      el.copyLogs.addEventListener('click', copyLogsToClipboard);
-      el.clearLogs.addEventListener('click', () => {
-        el.logs.textContent = 'Логи появятся здесь...';
-        setStatus('лог очищен');
-      });
-
-      el.saveServer.addEventListener('click', saveCurrentProfile);
-      el.deleteServer.addEventListener('click', deleteCurrentProfile);
-
-      el.fullDeploy.addEventListener('click', () => callApi('/api/full-deploy', getFormPayload()));
-      el.install.addEventListener('click', () => callApi('/api/install', getFormPayload()));
-      el.deploy.addEventListener('click', () => callApi('/api/deploy', getFormPayload()));
-      el.certbot.addEventListener('click', () => callApi('/api/certbot', getFormPayload()));
-      el.enable.addEventListener('click', () => callApi('/api/site/enable', getFormPayload()));
-      el.disable.addEventListener('click', () => callApi('/api/site/disable', getFormPayload()));
-      el.siteStatus.addEventListener('click', async () => {
-        setBusy(true);
-        setStatus('выполняется...');
-        try {
-          const response = await fetch('/api/site/status', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(getFormPayload())
-          });
-          const data = await response.json();
-          if (!response.ok || !data.ok) {
-            throw new Error(data.error || 'Unknown error');
-          }
-          setStatus(`сайт ${data.status}`);
-          appendLogs(`SITE STATUS: ${data.status}`);
-        } catch (error) {
-          setStatus('ошибка', true);
-          appendLogs(`ERROR: ${error.message}`);
-        } finally {
-          setBusy(false);
-        }
-      });
-
-      el.sshBootstrap.addEventListener('click', async () => {
-        setBusy(true);
-        setStatus('выполняется...');
-        try {
-          const response = await fetch('/api/ssh/bootstrap', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(getFormPayload())
-          });
-          const data = await response.json();
-          if (!response.ok || !data.ok) {
-            throw new Error(data.error || 'Unknown error');
-          }
-
-          if (data.privateKey) {
-            el.privateKey.value = data.privateKey;
-          }
-          setStatus('SSH ключ готов и установлен');
-          appendLogs(`BOOTSTRAP OK: key=${data.keyName} path=${data.privateKeyPath}`);
-        } catch (error) {
-          setStatus('ошибка', true);
-          appendLogs(`ERROR: ${error.message}`);
-        } finally {
-          setBusy(false);
-        }
-      });
-
-      loadServers().catch((error) => {
-        setStatus('ошибка загрузки профилей', true);
-        appendLogs(`ERROR: ${error.message}`);
+      refresh().catch((e) => {
+        setStatus('pageStatus', e.message);
+        setStatus('methodStatus', e.message);
       });
     </script>
   </body>

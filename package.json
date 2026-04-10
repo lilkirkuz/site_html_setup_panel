@@ -1,8 +1,8 @@
 {
-  "name": "ubuntu-site-deployer",
+  "name": "pay-web-creator",
   "version": "0.1.0",
   "private": true,
-  "description": "Web app to manage Nginx deployment over SSH",
+  "description": "Панель для страниц оплаты и публикации",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",

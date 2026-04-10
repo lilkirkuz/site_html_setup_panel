@@ -3,6 +3,8 @@ setlocal
 
 cd /d "%~dp0"
 
+title Pay Web Creator
+
 REM Prefer project-local Node.js if present; fallback to system Node.
 if exist ".local\node-current\bin\node.exe" (
   set "PATH=%CD%\.local\node-current\bin;%PATH%"
@@ -15,7 +17,7 @@ if errorlevel 1 (
   exit /b 1
 )
 
-if not exist "node_modules" (
+if not exist "node_modules\.bin" (
   call npm install
   if errorlevel 1 (
     echo npm install failed.
@@ -24,5 +26,5 @@ if not exist "node_modules" (
   )
 )
 
-start "" "http://localhost:3000"
+start "" /b cmd /c "ping 127.0.0.1 -n 3 >nul && start http://localhost:3000"
 call npm start

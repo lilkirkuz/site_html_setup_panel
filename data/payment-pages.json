@@ -1,0 +1,43 @@
+{
+  "methods": [
+    {
+      "id": "1575fd8d-c41d-49e5-bcd3-4f9672fdf0ee",
+      "name": "Основной",
+      "bank": "Тинькофф Банк",
+      "recipient": "Иванов И.И.",
+      "value": "+79990000000",
+      "note": "После оплаты отправьте чек",
+      "active": true,
+      "createdAt": "2026-04-10T12:30:18.842Z",
+      "updatedAt": "2026-04-10T12:30:18.848Z"
+    }
+  ],
+  "pages": [
+    {
+      "id": "acd061c0-4f29-475f-86bc-4f92860dc279",
+      "title": "Оплата заказа",
+      "slug": "order-4990",
+      "amount": "4 990 ₽",
+      "currentMethodId": "1575fd8d-c41d-49e5-bcd3-4f9672fdf0ee",
+      "buttonMode": "notice",
+      "buttonUrl": "",
+      "active": true,
+      "htmlTemplate": "",
+      "createdAt": "2026-04-10T12:31:57.206Z",
+      "updatedAt": "2026-04-10T12:31:57.207Z"
+    },
+    {
+      "id": "ddca5569-8e41-48e6-b23c-fa7b0b8a37bc",
+      "title": "123",
+      "slug": "123",
+      "amount": "32323",
+      "currentMethodId": "1575fd8d-c41d-49e5-bcd3-4f9672fdf0ee",
+      "buttonMode": "notice",
+      "buttonUrl": "",
+      "active": true,
+      "htmlTemplate": "",
+      "createdAt": "2026-04-10T12:32:15.408Z",
+      "updatedAt": "2026-04-10T14:00:22.962Z"
+    }
+  ]
+}
